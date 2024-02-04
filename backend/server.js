@@ -16,7 +16,15 @@ app.post('/login', (req, res) => {
 
   const botId = botManager.createBot({ apiKey, apiSecret });
 
-  res.send({ botId });
+  return res.send({ botId });
 });
+
+app.post('/logout', (req, res) => {
+  const { botId } = req.body;
+
+  const terminated = botManager.terminateBot(botId);
+
+  return res.send({ terminated });
+})
 
 app.listen(3001);

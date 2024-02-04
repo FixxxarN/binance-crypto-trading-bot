@@ -13,6 +13,16 @@ class BotManager {
     return newBot.id;
   }
 
+  terminateBot(botId) {
+    const index = this.bots.findIndex((bot) => bot.id === botId);
+
+    if (index === -1) return false;
+
+    this.bots.splice(index, 1);
+
+    return true;
+  }
+
   findBotById(botId) {
     return this.bots.find((bot) => bot.id === botId);
   }

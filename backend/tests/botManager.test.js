@@ -33,4 +33,21 @@ describe('BotManager', () => {
       expect(foundBot).toBeUndefined();
     });
   });
+
+  describe('terminateBot', () => {
+    it('should return true and remove the bot if it can find it in the array', () => {
+      const botManager = new BotManager();
+      const botId = botManager.createBot({ apiKey: 'fakeKey', apiSecret: 'fakeSecret' })
+
+      expect(botManager.terminateBot(botId)).toBeTruthy();
+    });
+
+    it('should return false if it doesnt find the bot', () => {
+      const botManager = new BotManager();
+
+      botManager.createBot({ apiKey: 'fakeKey', apiSecret: 'fakeSecret' })
+
+      expect(botManager.terminateBot('fakeBotId')).toBeFalsy();
+    });
+  });
 });

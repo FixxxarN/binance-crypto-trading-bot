@@ -11,10 +11,10 @@ app.use(cors({
 
 const botManager = new BotManager();
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
   const { apiKey, apiSecret } = req.body;
 
-  const botId = botManager.createBot(apiKey, apiSecret);
+  const botId = await botManager.createBot(apiKey, apiSecret);
 
   return res.send({ botId });
 });
@@ -25,10 +25,6 @@ app.post('/logout', (req, res) => {
   const terminated = botManager.terminateBot(botId);
 
   return res.send({ terminated });
-})
-
-process.on('uncaughtException', (err) => {
-  console.log('Error: ', err);
 })
 
 app.listen(3001);

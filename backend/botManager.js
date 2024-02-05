@@ -5,10 +5,18 @@ class BotManager {
     this.bots = [];
   }
 
-  createBot(apiKey, apiSecret) {
-    const newBot = new Bot({ apiKey, apiSecret });
+  async createBot(apiKey, apiSecret) {
+    const newBot = await new Bot({ apiKey, apiSecret });
 
-    this.bots.push(newBot);
+    await newBot.connectToBinance();
+
+    try {
+      await newBot.checkIfCredentialsAreValid();
+    } catch (error) {
+      return null;
+    }
+
+    await this.bots.push(newBot);
 
     return newBot.id;
   }

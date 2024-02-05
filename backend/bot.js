@@ -6,15 +6,17 @@ class Bot {
     this.id = uuidv4();
     this.apiKey = apiKey;
     this.apiSecret = apiSecret;
-
-    this.initializeExchange(apiKey, apiSecret);
   }
 
-  async initializeExchange(apiKey, apiSecret) {
+  async connectToBinance() {
     this.exchange = await new ccxt.binance({
-      apiKey: apiKey,
-      secret: apiSecret
-    })
+      apiKey: this.apiKey,
+      secret: this.apiSecret
+    });
+  }
+
+  async checkIfCredentialsAreValid() {
+    return await this.exchange.fetchFreeBalance().then((b) => b);
   }
 }
 

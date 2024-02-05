@@ -5,7 +5,7 @@ class BotManager {
     this.bots = [];
   }
 
-  createBot({ apiKey, apiSecret }) {
+  createBot(apiKey, apiSecret) {
     const newBot = new Bot({ apiKey, apiSecret });
 
     this.bots.push(newBot);

@@ -9,7 +9,7 @@ describe('BotManager', () => {
   describe('createBot', () => {
     it('should add a bot to the array of bots', () => {
       const botManager = new BotManager();
-      botManager.createBot({ apiKey: 'fakeKey', apiSecret: 'fakeSecret' });
+      botManager.createBot('fakeKey', 'fakeSecret');
       expect(botManager.bots).toHaveLength(1);
     });
   });
@@ -17,7 +17,7 @@ describe('BotManager', () => {
   describe('findBotById', () => {
     it('should find a bot by id', () => {
       const botManager = new BotManager();
-      const createdBotId = botManager.createBot({ apiKey: 'fakeKey', apiSecret: 'fakeSecret' })
+      const createdBotId = botManager.createBot('fakeKey', 'fakeSecret')
 
       const foundBot = botManager.findBotById(createdBotId);
 
@@ -26,7 +26,7 @@ describe('BotManager', () => {
 
     it('should throw error if no bot found', () => {
       const botManager = new BotManager();
-      botManager.createBot({ apiKey: 'fakeKey', apiSecret: 'fakeSecret' })
+      botManager.createBot('fakeKey', 'fakeSecret')
 
       const foundBot = botManager.findBotById('fakeId');
 
@@ -37,7 +37,7 @@ describe('BotManager', () => {
   describe('terminateBot', () => {
     it('should return true and remove the bot if it can find it in the array', () => {
       const botManager = new BotManager();
-      const botId = botManager.createBot({ apiKey: 'fakeKey', apiSecret: 'fakeSecret' })
+      const botId = botManager.createBot('fakeKey', 'fakeSecret')
 
       expect(botManager.terminateBot(botId)).toBeTruthy();
     });
@@ -45,7 +45,7 @@ describe('BotManager', () => {
     it('should return false if it doesnt find the bot', () => {
       const botManager = new BotManager();
 
-      botManager.createBot({ apiKey: 'fakeKey', apiSecret: 'fakeSecret' })
+      botManager.createBot('fakeKey', 'fakeSecret')
 
       expect(botManager.terminateBot('fakeBotId')).toBeFalsy();
     });

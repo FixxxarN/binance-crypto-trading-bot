@@ -19,7 +19,7 @@ app.post('/login', async (req, res) => {
   return res.send({ botId });
 });
 
-app.post('/logout', (req, res) => {
+app.delete('/logout', (req, res) => {
   const { botId } = req.body;
 
   const terminated = botManager.terminateBot(botId);

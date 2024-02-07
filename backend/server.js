@@ -19,6 +19,30 @@ app.post('/login', async (req, res) => {
   return res.send({ botId });
 });
 
+app.get('/balance', async (req, res) => {
+  const { botId } = req.body;
+
+  const bot = await botManager.findBotById(botId);
+
+  if (!bot) return res.sendStatus(401);
+
+  const balance = await bot.fetchBalance();
+
+  return res.send({ balance });
+})
+
+app.get('/currencies', async (req, res) => {
+  const { botId } = req.body;
+
+  const bot = await botManager.findBotById(botId);
+
+  if (!bot) return res.sendStatus(401);
+
+  const currencies = await bot.fetchCurrencies();
+
+  return res.send({ currencies });
+})
+
 app.delete('/logout', (req, res) => {
   const { botId } = req.body;
 

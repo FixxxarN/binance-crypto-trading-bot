@@ -7,6 +7,9 @@ class Bot {
     this.id = uuidv4();
     this.apiKey = apiKey;
     this.apiSecret = apiSecret;
+
+    this.exchange = undefined;
+    this.clientWebsocketConnection = undefined;
   }
 
   async connectToBinance() {
@@ -26,6 +29,10 @@ class Bot {
 
   async checkIfCredentialsAreValid() {
     return await this.exchange.fetchFreeBalance().then((b) => b);
+  }
+
+  setClientWebsocketConenction(clientWebsocketConnection) {
+    this.clientWebsocketConnection = clientWebsocketConnection;
   }
 }
 

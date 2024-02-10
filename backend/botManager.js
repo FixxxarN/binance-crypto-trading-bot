@@ -1,8 +1,23 @@
+const { WebSocket } = require('ws');
 const Bot = require('./bot');
 
 class BotManager {
   constructor() {
     this.bots = [];
+
+    this.initializeWebsocketServer();
+  }
+
+  async initializeWebsocketServer() {
+    this.websocketServer = await new WebSocket.WebSocketServer({ port: 3002 });
+
+    this.websocketServer.on('connection', async (ws, request) => {
+      const botId = request.url.split('botId=')[1];
+
+      const bot = await this.findBotById(botId);
+
+      bot.setClientWebsocketConenction(ws);
+    })
   }
 
   async createBot(apiKey, apiSecret) {

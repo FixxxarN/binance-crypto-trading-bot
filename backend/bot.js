@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const ccxt = require('ccxt');
-const { resolveAvailableBalances, resolveCurrenciesKeys } = require('./utils');
+const { resolveAvailableBalance, resolveCurrenciesKeys } = require('./utils');
+const TradingCrypto = require('./crypto');
 
 class Bot {
   constructor({ apiKey, apiSecret }) {
@@ -10,6 +11,8 @@ class Bot {
 
     this.exchange = undefined;
     this.clientWebsocketConnection = undefined;
+
+    this.tradingCryptos = [];
   }
 
   async connectToBinance() {
@@ -29,6 +32,40 @@ class Bot {
 
   async checkIfCredentialsAreValid() {
     return await this.exchange.fetchFreeBalance().then((b) => b);
+  }
+
+  async startTrading(currencies, strategy) {
+    try {
+      currencies.forEach((currency) => {
+        const tradingCrypto = new TradingCrypto(currency, strategy);
+
+        tradingCrypto.startWebsocketConnection();
+
+        this.tradingCryptos.push(tradingCrypto);
+      });
+    } catch (error) {
+      console.log('Error: ', error);
+
+      return false;
+    }
+
+    return true;
+  }
+
+  async stopTrading() {
+    try {
+      this.tradingCryptos.forEach((tradingCrypto) => {
+        tradingCrypto.closeWebsocketConnection();
+      })
+
+      this.tradingCryptos = [];
+    } catch (error) {
+      console.log('Error: ', error);
+
+      return false;
+    }
+
+    return true;
   }
 
   setClientWebsocketConenction(clientWebsocketConnection) {

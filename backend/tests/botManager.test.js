@@ -3,6 +3,8 @@ const Bot = require('../bot');
 
 describe('BotManager', () => {
   beforeEach(() => {
+    jest.spyOn(BotManager.prototype, 'initializeWebsocketServer').mockImplementation(() => true);
+
     jest.spyOn(Bot.prototype, 'connectToBinance').mockImplementation(() => true);
   });
 

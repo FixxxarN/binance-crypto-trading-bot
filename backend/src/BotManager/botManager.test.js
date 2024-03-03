@@ -1,5 +1,5 @@
-const BotManager = require("../botManager");
-const Bot = require('../bot');
+const BotManager = require("./botManager");
+const Bot = require('../Bot/bot');
 
 describe('BotManager', () => {
   beforeEach(() => {

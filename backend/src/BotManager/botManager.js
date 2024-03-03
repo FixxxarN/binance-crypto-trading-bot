@@ -1,5 +1,5 @@
 const { WebSocket } = require('ws');
-const Bot = require('./bot');
+const Bot = require('../Bot/bot');
 
 class BotManager {
   constructor() {

@@ -1,5 +1,5 @@
 const express = require('express');
-const BotManager = require('./botManager');
+const BotManager = require('./BotManager/botManager');
 const cors = require('cors');
 const app = express();
 

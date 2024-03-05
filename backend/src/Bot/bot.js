@@ -55,6 +55,7 @@ class Bot {
       console.log(`Bought ${currency} for ${price}`);
       const tradingCrypto = await this.tradingCryptos.find((tradingCrypto) => tradingCrypto.currency === currency);
       tradingCrypto.takeProfit = price * ((this.strategy.takeProfitPercentLimit / 100) + 1);
+      tradingCrypto.stopLoss = price * (1 - (this.strategy.stopLossPercentLimit / 100));
     }
   }
 
@@ -110,6 +111,11 @@ class Bot {
     if (tradingCrypto.takeProfit && price >= tradingCrypto.takeProfit) {
       this.createMarketSellOrder(currency)
       delete tradingCrypto.takeProfit;
+    }
+
+    if (tradingCrypto.stopLoss && price <= tradingCrypto.stopLoss) {
+      this.createMarketSellOrder(currency)
+      delete tradingCrypto.stopLoss;
     }
   }
 

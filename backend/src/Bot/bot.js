@@ -52,8 +52,8 @@ class Bot {
 
       await this.exchange.createMarketBuyOrder(`${currency}/USDT`, flooredAmount)
 
-      console.log(`Bought ${currency} for ${price}`);
       const tradingCrypto = await this.tradingCryptos.find((tradingCrypto) => tradingCrypto.currency === currency);
+
       tradingCrypto.takeProfit = price * ((this.strategy.takeProfitPercentLimit / 100) + 1);
       tradingCrypto.stopLoss = price * (1 - (this.strategy.stopLossPercentLimit / 100));
     }
@@ -67,7 +67,6 @@ class Bot {
     }
 
     await this.exchange.createMarketSellOrder(`${currency}/USDT`, balance[currency]);
-    console.log(`Sold ${currency}`);
   }
 
   async checkIfCredentialsAreValid() {
@@ -92,11 +91,9 @@ class Bot {
 
       if (createSignalFunc()) {
         tradingCrypto.buySignals[key] = true;
-        console.log('Buy signal created for next tick');
       }
       if (removeSignalFunc()) {
         tradingCrypto.buySignals[key] = false;
-        console.log('Buy signal removed');
       }
     });
 

@@ -13,7 +13,7 @@ class Bot {
     this.exchange = undefined;
     this.clientWebsocketConnection = undefined;
 
-    this.tradingCryptos = [];
+    this.tradingCryptos = {};
     this.strategyFunctions = undefined;
     this.strategy = undefined;
   }
@@ -52,7 +52,7 @@ class Bot {
 
       await this.exchange.createMarketBuyOrder(`${currency}/USDT`, flooredAmount)
 
-      const tradingCrypto = await this.tradingCryptos.find((tradingCrypto) => tradingCrypto.currency === currency);
+      const tradingCrypto = this.tradingCryptos[currency];
 
       tradingCrypto.takeProfit = price * ((this.strategy.takeProfitPercentLimit / 100) + 1);
       tradingCrypto.stopLoss = price * (1 - (this.strategy.stopLossPercentLimit / 100));
@@ -75,7 +75,7 @@ class Bot {
 
   async handleIncomingMessage(incomingMessage) {
     const currency = incomingMessage['s'].replace('USDT', '');
-    const tradingCrypto = this.tradingCryptos.find((tradingCrypto) => tradingCrypto.currency === currency);
+    const tradingCrypto = this.tradingCryptos[currency];
 
     const price = Number(incomingMessage['k']['c']);
 
@@ -138,7 +138,7 @@ class Bot {
           buySignals: {}
         }
 
-        this.tradingCryptos.push(tradingCrypto);
+        this.tradingCryptos[currency] = tradingCrypto;
       });
     } catch (error) {
       console.log('Error: ', error);
@@ -151,11 +151,11 @@ class Bot {
 
   async stopTrading() {
     try {
-      this.tradingCryptos.forEach((tradingCrypto) => {
-        tradingCrypto.websocket.close();
+      Object.keys(this.tradingCryptos).forEach((key) => {
+        this.tradingCryptos[key].websocket.close();
       })
 
-      this.tradingCryptos = [];
+      this.tradingCryptos = {};
     } catch (error) {
       console.log('Error: ', error);
 

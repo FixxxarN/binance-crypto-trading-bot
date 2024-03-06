@@ -9,6 +9,16 @@ describe('crypto utils', () => {
             periods: [14],
             createSignal: 'value < 30',
             removeSignal: 'value > 40'
+          },
+          ema: {
+            periods: [200],
+            createSignal: 'price > value',
+            removeSignal: 'price < value'
+          },
+          sma: {
+            periods: [200],
+            createSignal: 'price > value',
+            removeSignal: 'price < value'
           }
         }
       }
@@ -17,6 +27,8 @@ describe('crypto utils', () => {
 
       expect(result).toEqual({
         rsi: expect.any(Function),
+        ema: expect.any(Function),
+        sma: expect.any(Function)
       })
     });
   });

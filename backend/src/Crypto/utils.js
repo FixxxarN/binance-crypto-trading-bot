@@ -1,7 +1,11 @@
 const rsi = require('technicalindicators').RSI;
+const ema = require('technicalindicators').EMA;
+const sma = require('technicalindicators').SMA;
 
 const strategyFunctions = {
   rsi: rsi.calculate,
+  ema: ema.calculate,
+  sma: sma.calculate,
 }
 
 const resolveStrategyFunctions = (strategy) => {
@@ -50,7 +54,9 @@ const resolveComps = (commandItem, value, price) => {
 
 const resolveCommand = (command, value, price) => {
   const commandItems = command.split(' ');
+
   const func = funcMap[commandItems[1]];
+
   const comp1 = resolveComps(commandItems[0], value, price);
   const comp2 = resolveComps(commandItems[2], value, price);
 

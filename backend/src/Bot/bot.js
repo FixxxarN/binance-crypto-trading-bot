@@ -168,6 +168,111 @@ class Bot {
   setClientWebsocketConenction(clientWebsocketConnection) {
     this.clientWebsocketConnection = clientWebsocketConnection;
   }
+
+  async backtest(startingBalance = 1000, currencies, strategy) {
+    const strategyFunctions = resolveStrategyFunctions(strategy);
+
+    const result = {};
+
+    const backtestingDone = new Promise((resolve, reject) => {
+      currencies.forEach(async (currency) => {
+        result[currency] = {};
+
+        await this.fetchCurrencyData(currency, strategy.timeframe).then((data) => {
+          let currentBalance = startingBalance;
+
+          const graphData = [];
+          const buySignals = {};
+
+          let takeProfit = undefined;
+          let stopLoss = undefined;
+          let holdingCrypto = false;
+          let holdingAmount = undefined;
+
+          for (let i = 0; i < data.length; i++) {
+            const fetchedData = [...data];
+            const currentData = [...fetchedData.splice(0, i + 1)];
+            const price = currentData[currentData.length - 1];
+
+            Object.keys(strategyFunctions).forEach((key) => {
+              const values = strategyFunctions[key]({ values: currentData, period: resolvePeriods(strategy.buy[key].periods) });
+
+              const value = values[values.length - 1];
+
+              const createSignalFunc = resolveCommand(strategy.buy[key].createSignal, value, price);
+              const removeSignalFunc = resolveCommand(strategy.buy[key].removeSignal, value, price);
+
+              if (createSignalFunc()) {
+                buySignals[key] = true;
+              }
+              if (removeSignalFunc()) {
+                buySignals[key] = false;
+              }
+            });
+
+            if (!holdingCrypto && Object.values(buySignals).length === Object.keys(strategyFunctions).length && Object.values(buySignals).every((signal) => signal)) {
+              const amount = currentBalance * (strategy.buyPricePercentLimit / 100) / price;
+              const flooredAmount = Math.floor(amount);
+
+              currentBalance -= flooredAmount * price;
+              holdingCrypto = true;
+              holdingAmount = flooredAmount;
+
+              takeProfit = price * ((strategy.takeProfitPercentLimit / 100) + 1);
+              stopLoss = price * (1 - (strategy.stopLossPercentLimit / 100));
+              graphData.push({ value: price, bought: true, cost: flooredAmount * price });
+              continue;
+            }
+
+            if (holdingCrypto && takeProfit && price >= takeProfit) {
+              currentBalance += holdingAmount * price;
+
+              takeProfit = undefined;
+              stopLoss = undefined;
+              holdingCrypto = false;
+              graphData.push({ value: price, sold: true, cost: holdingAmount * price });
+              holdingAmount = undefined;
+              continue;
+            }
+
+            if (holdingCrypto && stopLoss && price <= stopLoss) {
+              currentBalance += holdingAmount * price;
+
+              stopLoss = undefined;
+              takeProfit = undefined;
+              holdingCrypto = false;
+              graphData.push({ value: price, sold: true, cost: holdingAmount * price });
+              holdingAmount = undefined;
+              continue;
+            }
+
+            graphData.push({ value: price });
+          }
+
+          if (graphData.filter((data) => data.bought).length > graphData.filter((data) => data.sold).length) {
+            graphData.reverse();
+            const lastBuyIndex = graphData.findIndex((data) => data.bought);
+            graphData[lastBuyIndex] = { value: graphData[lastBuyIndex].value };
+            graphData.reverse();
+          }
+
+          const newCurrentBalance = graphData.filter((data) => data.bought || data.sold).reduce((prev, curr) => {
+            if (curr.bought) return prev - curr.cost;
+            if (curr.sold) return prev + curr.cost;
+          }, startingBalance);
+
+          result[currency].graphData = graphData;
+          result[currency].startingBalance = startingBalance;
+          result[currency].currentBalance = newCurrentBalance;
+          result[currency].profitLoss = Math.round(((newCurrentBalance / startingBalance * 100 - 100) + Number.EPSILON) * 100) / 100;;
+        });
+
+        resolve();
+      })
+    });
+
+    return backtestingDone.then(() => result);
+  }
 }
 
 module.exports = Bot;

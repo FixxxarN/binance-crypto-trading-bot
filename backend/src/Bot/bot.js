@@ -74,15 +74,19 @@ class Bot {
   }
 
   async handleIncomingMessage(incomingMessage) {
+    if (!incomingMessage['k']['x'] && this.strategy.tradeOnClosing) {
+      return;
+    }
+
     const currency = incomingMessage['s'].replace('USDT', '');
     const tradingCrypto = this.tradingCryptos[currency];
 
     const price = Number(incomingMessage['k']['c']);
 
-    const currentData = [...tradingCrypto.data.slice(1), price];
+    tradingCrypto.data = [...tradingCrypto.data.slice(1), price];
 
     Object.keys(this.strategyFunctions).forEach((key) => {
-      const values = this.strategyFunctions[key]({ values: currentData, period: resolvePeriods(this.strategy.buy[key].periods) });
+      const values = this.strategyFunctions[key]({ values: tradingCrypto.data, period: resolvePeriods(this.strategy.buy[key].periods) });
 
       const value = values[values.length - 1];
       const prevValue = values[values.length - 2];
@@ -97,10 +101,6 @@ class Bot {
         tradingCrypto.buySignals[key] = false;
       }
     });
-
-    if (incomingMessage['k']['x']) {
-      tradingCrypto.data = [...tradingCrypto.data.slice(1), price];
-    }
 
     if (Object.values(tradingCrypto.buySignals).length === Object.keys(this.strategyFunctions).length && Object.values(tradingCrypto.buySignals).every((signal) => signal)) {
       this.createMarketBuyOrder(currency, price);

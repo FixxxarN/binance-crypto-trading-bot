@@ -85,9 +85,10 @@ class Bot {
       const values = this.strategyFunctions[key]({ values: currentData, period: resolvePeriods(this.strategy.buy[key].periods) });
 
       const value = values[values.length - 1];
+      const prevValue = values[values.length - 2];
 
-      const createSignalFunc = resolveCommand(this.strategy.buy[key].createSignal, value, price);
-      const removeSignalFunc = resolveCommand(this.strategy.buy[key].removeSignal, value, price);
+      const createSignalFunc = resolveCommand(this.strategy.buy[key].createSignal, price, value, prevValue);
+      const removeSignalFunc = resolveCommand(this.strategy.buy[key].removeSignal, price, value, prevValue);
 
       if (createSignalFunc()) {
         tradingCrypto.buySignals[key] = true;
@@ -198,9 +199,10 @@ class Bot {
               const values = strategyFunctions[key]({ values: currentData, period: resolvePeriods(strategy.buy[key].periods) });
 
               const value = values[values.length - 1];
+              const prevValue = values[values.length - 2];
 
-              const createSignalFunc = resolveCommand(strategy.buy[key].createSignal, value, price);
-              const removeSignalFunc = resolveCommand(strategy.buy[key].removeSignal, value, price);
+              const createSignalFunc = resolveCommand(strategy.buy[key].createSignal, price, value, prevValue);
+              const removeSignalFunc = resolveCommand(strategy.buy[key].removeSignal, price, value, prevValue);
 
               if (createSignalFunc()) {
                 buySignals[key] = true;
@@ -261,10 +263,10 @@ class Bot {
             if (curr.sold) return prev + curr.cost;
           }, startingBalance);
 
-          result[currency].graphData = graphData;
           result[currency].startingBalance = startingBalance;
           result[currency].currentBalance = newCurrentBalance;
-          result[currency].profitLoss = Math.round(((newCurrentBalance / startingBalance * 100 - 100) + Number.EPSILON) * 100) / 100;;
+          result[currency].profitLoss = Math.round(((newCurrentBalance / startingBalance * 100 - 100) + Number.EPSILON) * 100) / 100;
+          result[currency].graphData = graphData;
         });
 
         resolve();
